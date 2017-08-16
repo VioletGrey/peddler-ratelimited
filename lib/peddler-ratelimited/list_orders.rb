@@ -65,11 +65,21 @@ module PeddlerRateLimited
 
       if parsed.count > 1
         parsed.each do |order|
-          processor.process(order["Order"])
+          get_items(order, processor)
         end
       else
-        processor.process(parsed["Order"])
+        get_items(parsed, processor)
       end
     end
+
+    def get_items(order, processor)
+      processor.process(order["Order"])
+      Resque.enqueue_in(
+        ListOrderItems::RESTORE_RATE.seconds,
+        {
+          amazon_order_id: order["Order"]["AmazonOrderId"]
+          processor: processor
+        }
+      )
   end
 end
