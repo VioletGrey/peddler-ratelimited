@@ -51,14 +51,24 @@ module PeddlerRateLimited
       end
 
       if (order_items = parsed["OrderItems"]).present?
-        process_orders(order_items, processor)
+        amazon_order_id = parsed["AmazonOrderId"]
+        process_orders({
+          order_items: order_items,
+          amazon_order_id: amazon_order_id,
+          processor: processor
+        })
       end
     end
 
-    def self.process_orders(parsed, processor)
+    def self.process_orders(args)
+      processor = args[:processor]
+
       unless processor.present? && processor.respond_to?(:process)
         raise "Expecting a processor method!"
       end
+
+      order_items = args[:order_items]
+      amazon_order_id = args[:amazon_order_id]
 
       if parsed.count > 1
         parsed.each do |order_items|
@@ -67,7 +77,8 @@ module PeddlerRateLimited
       else
         processor.process(parsed["OrderItem"])
       end
-      #call NetSuite
+
+      processor.publish(amazon_order_id)
     end
 
   end

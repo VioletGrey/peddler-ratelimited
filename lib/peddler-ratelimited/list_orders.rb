@@ -77,9 +77,10 @@ module PeddlerRateLimited
       Resque.enqueue_in(
         ListOrderItems::RESTORE_RATE.seconds,
         {
-          amazon_order_id: order["Order"]["AmazonOrderId"]
+          amazon_order_id: order["Order"]["AmazonOrderId"],
           processor: processor
         }
       )
+    end
   end
 end
