@@ -35,7 +35,6 @@ module PeddlerRateLimited
     end
 
     def self.call_feed(args)
-      binding.pry
       AmazonMWS.instance.orders.list_order_items(args[:amazon_order_id])
     end
 
