@@ -1,6 +1,3 @@
-require 'peddler'
-require 'resque-retry'
-require 'simple_spark'
 require 'peddler-ratelimited/amazon_mws'
 
 module PeddlerRateLimited

@@ -1,5 +1,3 @@
-require 'resque-retry'
-
 module PeddlerRateLimited
 
   class GetFeedSubmissionList < AmazonMWSApi

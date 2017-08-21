@@ -1,3 +1,5 @@
+require 'peddler'
+require 'simple_spark'
 require 'resque-retry'
 require 'rate_limit.rb'
 require 'peddler-ratelimited/rate_limitter'
