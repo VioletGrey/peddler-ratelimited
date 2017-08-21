@@ -55,9 +55,13 @@ module PeddlerRateLimited
     end
 
     def self.log_data(args)
-      AMWSFeedLog.create(feed_submission_id: args[:feed_submission_id],
-                         feed_type: feed_type,
-                         data: args[:data])
+      if args[:processor].present?
+        arg[:processor](args)
+      else
+        AMWSFeedLog.create(feed_submission_id: args[:feed_submission_id],
+                           feed_type: args[:feed_type],
+                           data: args[:data])
+      end
     end
   end
 end
