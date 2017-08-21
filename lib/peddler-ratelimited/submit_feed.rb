@@ -23,6 +23,7 @@ module PeddlerRateLimited
     def self.act(args)
       feed_type = args[:feed_type]
       data = args[:data]
+      processor = args[:processor]
 
       result = AmazonMWS.instance.products.submit_feed(data, feed_type)
       parsed_result = result.parse["FeedSubmissionInfo"]
