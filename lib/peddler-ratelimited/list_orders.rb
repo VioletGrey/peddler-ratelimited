@@ -18,7 +18,7 @@ module PeddlerRateLimited
       begin
         result = call_feed(args)
 
-        process_feeds_list(result, args[:processor])
+        process_feeds_list(result, args[:order_processor], args[:order_item_processor])
       rescue Exception => e
         log_error('list_orders', result, e)
       end
@@ -38,7 +38,7 @@ module PeddlerRateLimited
       AmazonMWS.instance.orders.list_orders(args)
     end
 
-    def self.process_feeds_list(result, processor)
+    def self.process_feeds_list(result, order_processor, order_item_processor)
       parsed = result.parse
 
       last_run_time = parsed["CreatedBefore"] || parsed["LastUpdatedBefore"]
@@ -49,36 +49,44 @@ module PeddlerRateLimited
           ListOrdersByNextToken::RESTORE_RATE.seconds,
           ListOrdersByNextToken,
           parsed["NextToken"],
-          processor
+          order_processor
         )
       end
 
       if (orders = parsed["Orders"]).present?
-        process_orders(orders, processor)
+        begin
+          process_orders(orders, order_processor, order_item_processor)
+        rescue Exception => e
+          log_error('list_orders', orders, e)
+        end
       end
     end
 
-    def self.process_orders(parsed, processor)
-      unless processor.present? && processor.respond_to?(:process)
-        raise "Expecting a processor method!"
+    def self.process_orders(parsed, order_processor, order_item_processor)
+      unless order_processor.present? && order_processor.respond_to?(:process)
+        raise "Expecting a processor method for orders!"
       end
-
-      if parsed.count > 1
-        parsed.each do |order|
-          get_items(order, processor)
+      unless order_item_processor.present? && order_item_processor.respond_to?(:process)
+        raise "Expecting a processor method for order_items!"
+      end
+      orders = parsed["Order"]
+      if orders.count > 1
+        orders.each do |order|
+          get_items(order, order_processor, order_item_processor)
         end
       else
-        get_items(parsed, processor)
+        get_items(orders, order_processor, order_item_processor)
       end
     end
 
-    def get_items(order, processor)
-      processor.process(order["Order"])
+    def self.get_items(order, order_processor, order_item_processor)
+      order_processor.process(order)
       Resque.enqueue_in(
         ListOrderItems::RESTORE_RATE.seconds,
+        ListOrderItems,
         {
-          amazon_order_id: order["Order"]["AmazonOrderId"],
-          processor: processor
+          amazon_order_id: order["AmazonOrderId"],
+          processor: order_item_processor
         }
       )
     end

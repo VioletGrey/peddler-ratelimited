@@ -13,7 +13,7 @@ module PeddlerRateLimited
       @bucket_expiry = @params[:bucket_expiry]
       @burst_rate = @params[:burst_rate]
       @restore_rate = @params[:restore_rate]
-      @max_hourly_rate = @params[:max_hourly_rate]
+      @max_hourly_rate = @params[:max_hourly_rate] || @burst_rate*@restore_rate
       @subject = @params[:subject]
       @hour_duration = @params[:hour_duration] || 3600
 

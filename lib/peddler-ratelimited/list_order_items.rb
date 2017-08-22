@@ -69,12 +69,12 @@ module PeddlerRateLimited
       order_items = args[:order_items]
       amazon_order_id = args[:amazon_order_id]
 
-      if parsed.count > 1
-        parsed.each do |order_items|
-          processor.process(order_items["OrderItem"])
+      if order_items.count > 1
+        order_items.each do |order_item|
+          processor.process(order_item["OrderItem"], amazon_order_id)
         end
       else
-        processor.process(parsed["OrderItem"])
+        processor.process(order_items["OrderItem"], amazon_order_id)
       end
 
       processor.publish(amazon_order_id)
