@@ -3,7 +3,7 @@ module PeddlerRateLimited
 
     SUBJECT = 'list_order_items'
     BURST_RATE = 30
-    RESTORE_RATE = 2 
+    RESTORE_RATE = 2
     #MAX_HOURLY_RATE = 60
 
     @backoff_strategy = (1..5).map {|i| i*RESTORE_RATE }
@@ -61,6 +61,9 @@ module PeddlerRateLimited
 
     def self.process_orders(args)
       processor = args[:processor]
+      if processor.is_a?(String)
+        processor = processor.safe_constantize.try(:new)
+      end
 
       unless processor.present? && processor.respond_to?(:process)
         raise "Expecting a processor method!"
