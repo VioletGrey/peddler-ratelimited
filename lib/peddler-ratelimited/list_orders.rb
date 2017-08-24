@@ -63,6 +63,13 @@ module PeddlerRateLimited
     end
 
     def self.process_orders(parsed, order_processor, order_item_processor)
+      if order_processor.is_a?(String)
+        order_processor = order_processor.safe_constantize.try(:new)
+      end
+      if order_item_processor.is_a?(String)
+        order_item_processor = order_item_processor.safe_constantize.try(:new)
+      end
+
       unless order_processor.present? && order_processor.respond_to?(:process)
         raise "Expecting a processor method for orders!"
       end
@@ -86,7 +93,7 @@ module PeddlerRateLimited
         ListOrderItems,
         {
           amazon_order_id: order["AmazonOrderId"],
-          processor: order_item_processor
+          processor: order_item_processor.class.to_s
         }
       )
     end
