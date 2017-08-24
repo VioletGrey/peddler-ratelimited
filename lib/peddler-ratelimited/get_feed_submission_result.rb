@@ -11,6 +11,7 @@ module PeddlerRateLimited
     @queue = :amazon_api_get_feed_submission_result_queue
 
     def self.perform(args)
+      args.symbolize_keys!
       rateLimitter = RateLimitter.new(self, {
         feed_submission_id: args[:feed_submission_id],
         email_template: args[:email_template]

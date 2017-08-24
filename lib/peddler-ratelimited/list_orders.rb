@@ -11,6 +11,7 @@ module PeddlerRateLimited
     @queue = :amazon_api_list_orders_queue
 
     def self.perform(args = {})
+      args.symbolize_keys!
       RateLimitter.new(self, args).submit
     end
 
