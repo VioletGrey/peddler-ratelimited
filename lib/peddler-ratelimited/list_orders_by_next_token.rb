@@ -23,7 +23,7 @@ module PeddlerRateLimited
         result = call_feed(args)
         process_feeds_list(result, args[:processor])
       rescue Exception => e
-        log_error('list_orders_by_next_token', result, e)
+        log_error('list_orders_by_next_token', result, e, args)
       end
     end
 

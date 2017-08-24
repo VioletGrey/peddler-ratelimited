@@ -21,7 +21,7 @@ module PeddlerRateLimited
 
         process_feeds_list(result)
       rescue Exception => e
-        log_error('get_feed_submission_list', result, e)
+        log_error('get_feed_submission_list', result, e, args)
       end
     end
 

@@ -17,13 +17,14 @@ module PeddlerRateLimited
       raise "Implement me!"
     end
 
-    def self.log_error(feed_name, result, error=nil)
+    def self.log_error(feed_name, result, error=nil, args={})
       amazon_details = result.try(:to_xml).try(:to_s)
       Honeybadger.notify(error, {
         error_class: 'Amazon Feed Error',
         context: {
           feed: feed_name,
-          amazon_details: amazon_details
+          amazon_details: amazon_details,
+          args: args
         }
       })
       Rails.logger.error(amazon_details)

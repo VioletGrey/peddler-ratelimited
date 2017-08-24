@@ -31,7 +31,7 @@ module PeddlerRateLimited
 
       unless feed_submission_id.present?
         error = SubmitFeedError.new("feed_submission_id is missing.")
-        log_error('submit_feed', parsed_result, error)
+        log_error('submit_feed', parsed_result, error, args)
         raise error
       else
         log_data(feed_submission_id: feed_submission_id,

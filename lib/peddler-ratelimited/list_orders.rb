@@ -20,7 +20,7 @@ module PeddlerRateLimited
 
         process_feeds_list(result, args[:order_processor], args[:order_item_processor])
       rescue Exception => e
-        log_error('list_orders', result, e)
+        log_error('list_orders', result, e, args)
       end
     end
 

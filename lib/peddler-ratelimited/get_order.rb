@@ -20,7 +20,7 @@ module PeddlerRateLimited
         result = call_feed(args)
         process_feeds_list(result)
       rescue Exception => e
-        log_error('get_order', result, e)
+        log_error('get_order', result, e, args)
       end
     end
 

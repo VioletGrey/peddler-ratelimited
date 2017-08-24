@@ -32,7 +32,7 @@ module PeddlerRateLimited
           :assigns => { parsed_report: parsed_report }
         )
       else
-        log_error('get_feed_submission_result', parsed_report)
+        log_error('get_feed_submission_result', parsed_report, nil, args)
 
         message = "DocumentTransactionID: #{feed_submission_id}\n"
         message += "Status Code: #{report_code}\n"
