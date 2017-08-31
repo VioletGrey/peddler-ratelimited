@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    peddler-ratelimited (1.0.0)
+    peddler-ratelimited (1.0.4)
       peddler (~> 1.6)
       ratelimit (~> 1.0)
       resque (~> 1.27)

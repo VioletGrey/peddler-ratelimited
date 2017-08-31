@@ -10,7 +10,7 @@ module PeddlerRateLimited
     @queue = :amazon_api_get_order_queue
 
     def self.perform(amazon_order_id)
-      rateLimitter = RateLimitter.new(self, {
+      RateLimitter.new(self, {
         amazon_order_id: amazon_order_id
       }).submit
     end
