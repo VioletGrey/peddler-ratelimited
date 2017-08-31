@@ -16,13 +16,10 @@ module PeddlerRateLimited
     end
 
     def self.act(args)
-      binding.pry
       result = call_feed(args)
-      binding.pry
 
       process_feeds_list(result, args[:processor])
     rescue Exception => e
-      binding.pry
       log_error('create_inbound_shipment_plan', result, e, args)
     end
 
