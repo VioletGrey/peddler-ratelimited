@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
 
   gem.require_paths = ['lib']
 
-  gem.add_dependency 'peddler', '~> 1.6'
+  gem.add_dependency 'peddler', '1.6.1'
   gem.add_dependency 'ratelimit', '~> 1.0'
   gem.add_dependency 'resque', '~> 1.27'
   gem.add_dependency 'resque-scheduler', '~> 4.3'

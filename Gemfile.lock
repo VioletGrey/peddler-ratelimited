@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     peddler-ratelimited (1.0.4)
-      peddler (~> 1.6)
+      peddler (= 1.6.1)
       ratelimit (~> 1.0)
       resque (~> 1.27)
       resque-retry (~> 1.5)
@@ -18,11 +18,11 @@ GEM
     excon (0.58.0)
     jeff (2.0.0)
       excon (>= 0.22.1)
-    json (1.8.3)
+    json (1.8.6)
     mono_logger (1.1.0)
     multi_json (1.12.1)
     multi_xml (0.6.0)
-    mustermann (1.0.0)
+    mustermann (1.0.1)
     peddler (1.6.1)
       dig_rb (~> 1.0)
       excon (>= 0.50.0)
