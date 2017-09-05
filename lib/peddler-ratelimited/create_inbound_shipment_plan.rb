@@ -50,7 +50,7 @@ module PeddlerRateLimited
         raise "Expecting a processor method for InboundShipmentPlans!"
       end
 
-      Array(plans["member"]).each do |plan|
+      Array.wrap(plans["member"]).each do |plan|
         processor.process(plan)
       end
     end
