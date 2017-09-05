@@ -18,7 +18,7 @@ module PeddlerRateLimited
     def self.act(args)
       result = call_feed(args)
 
-      process_feeds_list(result, args[:processor])
+      process_feeds_list(result, args[:processor], args[:ship_from_address])
     rescue Exception => e
       log_error('create_inbound_shipment_plan', result, e, args)
     end
@@ -30,18 +30,18 @@ module PeddlerRateLimited
                                      args[:inbound_shipment_plan_request_items])
     end
 
-    def self.process_feeds_list(result, processor)
+    def self.process_feeds_list(result, processor, ship_from_address)
       parsed = result.parse
       if (plans = parsed["InboundShipmentPlans"]).present?
         begin
-          process_plans(plans, processor)
+          process_plans(plans, processor, ship_from_address)
         rescue Exception => e
           log_error('create_inbound_shipment_plan', plans, e)
         end
       end
     end
 
-    def self.process_plans(plans, processor)
+    def self.process_plans(plans, processor, ship_from_address)
       if processor.is_a?(String)
         processor = processor.safe_constantize.try(:new)
       end
@@ -51,7 +51,7 @@ module PeddlerRateLimited
       end
 
       Array.wrap(plans["member"]).each do |plan|
-        processor.process(plan)
+        processor.process(plan, ship_from_address)
       end
     end
 
