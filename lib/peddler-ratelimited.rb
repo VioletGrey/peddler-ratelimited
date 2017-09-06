@@ -15,6 +15,8 @@ require 'peddler-ratelimited/get_feed_submission_list'
 require 'peddler-ratelimited/get_feed_submission_result'
 require 'peddler-ratelimited/get_feed_submission_list_by_next_token'
 require 'peddler-ratelimited/create_inbound_shipment_plan'
+require 'peddler-ratelimited/create_inbound_shipment'
+require 'peddler-ratelimited/update_inbound_shipment'
 
 module PeddlerRateLimited
 end

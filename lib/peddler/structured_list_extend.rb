@@ -1,11 +1,12 @@
 module Peddler
   class StructuredList
     CAPITAL_LETTERS = /[A-Z]/
+    EXPECTED_ARGUMENTS = %w(InboundShipmentPlanRequestItems, InboundShipmentItems)
 
     alias :original_build :build
 
     def build(vals)
-      if @keys.first == 'InboundShipmentPlanRequestItems'
+      if EXPECTED_ARGUMENTS.include? @keys.first
         @result = {}
         traverse(vals, @keys.join('.'))
         @result
