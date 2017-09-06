@@ -1,14 +1,14 @@
 module PeddlerRateLimited
-  class CreateInboundShipmentPlan < AmazonMWSApi
+  class CreateInboundShipment < AmazonMWSApi
 
-    SUBJECT = 'create_inbound_shipment_plan'
+    SUBJECT = 'create_inbound_shipment'
     BURST_RATE = 30
     RESTORE_RATE = 0.5 #half a second
     MAX_HOURLY_RATE = 7200
 
     @backoff_strategy = (1..5).map {|i| i*RESTORE_RATE }
 
-    @queue = :amazon_api_create_inbound_shipment_plan
+    @queue = :amazon_api_create_inbound_shipment
 
     def self.perform(args = {})
       args.deep_symbolize_keys!
@@ -18,41 +18,41 @@ module PeddlerRateLimited
     def self.act(args)
       result = call_feed(args)
 
-      process_feeds_list(result, args[:processor], args[:ship_from_address])
+      process_feeds_list(args, result.parse)
     rescue Exception => e
-      log_error('create_inbound_shipment_plan', result, e, args)
+      log_error('create_inbound_shipment', result, e, args)
     end
 
     def self.call_feed(args)
+      items = args[:inbound_shipment_items]
       AmazonMWS.instance.
         inbound_fulfillment.
-        create_inbound_shipment_plan(args[:ship_from_address],
-                                     args[:inbound_shipment_plan_request_items])
+        create_inbound_shipment(args[:shipment_id],
+                                args[:inbound_shipment_header],
+                                inbound_shipment_items: items) 
     end
 
-    def self.process_feeds_list(result, processor, ship_from_address)
-      parsed = result.parse
-      if (plans = parsed["InboundShipmentPlans"]).present?
+    def self.process_feeds_list(args, result)
+      if result["ShipmentId"].present?
         begin
-          process_plans(plans, processor, ship_from_address)
+          process(args)
         rescue Exception => e
-          log_error('create_inbound_shipment_plan', plans, e)
+          log_error('create_inbound_shipment', e)
         end
       end
     end
 
-    def self.process_plans(plans, processor, ship_from_address)
+    def self.process(args)
+      processor = args[:processor]
       if processor.is_a?(String)
         processor = processor.safe_constantize.try(:new)
       end
 
       unless processor.present? && processor.respond_to?(:process)
-        raise "Expecting a processor method for InboundShipmentPlans!"
+        raise "Expecting a processor method for CreateInboundShipment!"
       end
 
-      Array.wrap(plans["member"]).each do |plan|
-        processor.process(plan, ship_from_address)
-      end
+      processor.process(args)
     end
 
     def self.feed_parameters
