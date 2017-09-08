@@ -68,5 +68,25 @@ module PeddlerRateLimited
                            data: args[:data])
       end
     end
+
+    def self.process(args)
+      processor = args[:processor]
+      method = args[:processor_method] || ''
+
+      if processor.is_a?(String)
+        processor = processor.safe_constantize.try(:new)
+      end
+
+      unless processor.present? &&
+          (processor.respond_to?(:process) || processor.respond_to?(method))
+        raise "Expecting a processor method for #{self.name}!"
+      end
+
+      if method.present?
+        processor.send(method, args)
+      else
+        processor.process(args)
+      end
+    end
   end
 end

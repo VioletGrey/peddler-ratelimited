@@ -38,7 +38,7 @@ module PeddlerRateLimited
         begin
           process(args)
         rescue Exception => e
-          log_error('create_inbound_shipment', e)
+          log_error('update_inbound_shipment', e)
         end
       end
     end
