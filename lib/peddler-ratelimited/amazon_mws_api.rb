@@ -9,12 +9,9 @@ module PeddlerRateLimited
     @retry_delay_multiplicand_min = 1
     @retry_delay_multiplicand_max = 1.5
 
-    def self.perform(feed, data, feet_type)
-      raise "Implement me!"
-    end
-
-    def self.act(args)
-      raise "Implement me!"
+    def self.perform(args = {})
+      args.deep_symbolize_keys!
+      RateLimitter.new(self, args).submit
     end
 
     def self.log_error(feed_name, result, error=nil, args={})
@@ -31,7 +28,13 @@ module PeddlerRateLimited
     end
 
     def self.feed_parameters
-      {}
+      {
+        bucket_expiry: MAX_EXPIRY_RATE,
+        burst_rate: self.const_get(:BURST_RATE),
+        restore_rate: self.const_get(:RESTORE_RATE),
+        max_hourly_rate: self.const_get(:MAX_HOURLY_RATE),
+        subject: self.const_get(:SUBJECT)
+      }  
     end
 
     def self.email(args)
@@ -53,6 +56,14 @@ module PeddlerRateLimited
           html: args[:message]
         }
       })
+    end
+
+    def self.act(args)
+      result = call_feed(args)
+
+      process_feeds_list(args, result.parse)
+    rescue Exception => e
+      log_error(get_class_name.underscore, result, e, args)
     end
 
     def self.log_data(args)
@@ -87,6 +98,10 @@ module PeddlerRateLimited
       else
         processor.process(args)
       end
+    end
+
+    def self.get_class_name
+      self.name.split('::').last
     end
   end
 end
