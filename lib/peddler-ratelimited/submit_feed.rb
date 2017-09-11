@@ -13,7 +13,7 @@ module PeddlerRateLimited
     @queue = :amazon_api_submit_feed_queue
 
     def self.perform(data, feed_type, processor=nil)
-      rateLimitter = RateLimitter.new(self, {
+      RateLimitter.new(self, {
         feed_type: feed_type,
         data: data,
         processor: processor

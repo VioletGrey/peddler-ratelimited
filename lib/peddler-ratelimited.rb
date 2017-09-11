@@ -19,6 +19,7 @@ require 'peddler-ratelimited/create_inbound_shipment'
 require 'peddler-ratelimited/update_inbound_shipment'
 require 'peddler-ratelimited/put_transport_content'
 require 'peddler-ratelimited/estimate_transport_request'
+require 'peddler-ratelimited/confirm_transport_request'
 
 module PeddlerRateLimited
 end
