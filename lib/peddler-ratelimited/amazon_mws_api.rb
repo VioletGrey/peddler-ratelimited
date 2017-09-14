@@ -9,12 +9,9 @@ module PeddlerRateLimited
     @retry_delay_multiplicand_min = 1
     @retry_delay_multiplicand_max = 1.5
 
-    def self.perform(feed, data, feet_type)
-      raise "Implement me!"
-    end
-
-    def self.act(args)
-      raise "Implement me!"
+    def self.perform(args = {})
+      args.deep_symbolize_keys!
+      RateLimitter.new(self, args).submit
     end
 
     def self.log_error(feed_name, result, error=nil, args={})
@@ -31,7 +28,13 @@ module PeddlerRateLimited
     end
 
     def self.feed_parameters
-      {}
+      {
+        bucket_expiry: MAX_EXPIRY_RATE,
+        burst_rate: self.const_get(:BURST_RATE),
+        restore_rate: self.const_get(:RESTORE_RATE),
+        max_hourly_rate: self.const_get(:MAX_HOURLY_RATE),
+        subject: self.const_get(:SUBJECT)
+      }  
     end
 
     def self.email(args)
@@ -55,6 +58,14 @@ module PeddlerRateLimited
       })
     end
 
+    def self.act(args)
+      result = call_feed(args)
+
+      process_feeds_list(args, result.parse)
+    rescue Exception => e
+      log_error(get_class_name.underscore, result, e, args)
+    end
+
     def self.log_data(args)
       processor = args[:processor]
       if processor.present?
@@ -67,6 +78,30 @@ module PeddlerRateLimited
                            feed_type: args[:feed_type],
                            data: args[:data])
       end
+    end
+
+    def self.process(args)
+      processor = args[:processor]
+      method = args[:processor_method] || ''
+
+      if processor.is_a?(String)
+        processor = processor.safe_constantize.try(:new)
+      end
+
+      unless processor.present? &&
+          (processor.respond_to?(:process) || processor.respond_to?(method))
+        raise "Expecting a processor method for #{self.name}!"
+      end
+
+      if method.present?
+        processor.send(method, args)
+      else
+        processor.process(args)
+      end
+    end
+
+    def self.get_class_name
+      self.name.split('::').last
     end
   end
 end

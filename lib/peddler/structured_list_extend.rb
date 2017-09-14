@@ -1,7 +1,7 @@
 module Peddler
   class StructuredList
     CAPITAL_LETTERS = /[A-Z]/
-    EXPECTED_ARGUMENTS = %w(InboundShipmentPlanRequestItems, InboundShipmentItems)
+    EXPECTED_ARGUMENTS = %w(InboundShipmentPlanRequestItems InboundShipmentItems TransportDetails)
 
     alias :original_build :build
 
