@@ -18,9 +18,13 @@ require 'peddler-ratelimited/create_inbound_shipment_plan'
 require 'peddler-ratelimited/create_inbound_shipment'
 require 'peddler-ratelimited/update_inbound_shipment'
 require 'peddler-ratelimited/put_transport_content'
+require 'peddler-ratelimited/get_transport_content'
 require 'peddler-ratelimited/estimate_transport_request'
 require 'peddler-ratelimited/confirm_transport_request'
 require 'peddler-ratelimited/void_transport_request'
+require 'peddler-ratelimited/get_unique_package_labels'
+require 'peddler-ratelimited/get_pallet_labels'
+require 'peddler-ratelimited/get_bill_of_lading'
 
 module PeddlerRateLimited
 end
