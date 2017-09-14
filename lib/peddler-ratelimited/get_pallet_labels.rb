@@ -26,7 +26,7 @@ module PeddlerRateLimited
         begin
           process(args)
         rescue Exception => e
-          log_error(get_class_name.underscore, e)
+          log_error(get_class_name.underscore, result, e)
         end
       end
     end

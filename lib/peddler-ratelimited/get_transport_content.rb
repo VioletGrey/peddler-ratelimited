@@ -38,7 +38,7 @@ module PeddlerRateLimited
                   processor: args[:processor],
                   processor_method: args[:processor_method])
         rescue Exception => e
-          log_error('get_transport_content', e)
+          log_error(get_class_name.underscore, result, e)
         end
       end
     end
