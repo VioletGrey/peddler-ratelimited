@@ -52,7 +52,7 @@ module PeddlerRateLimited
         raise "Expecting a processor method for CreateInboundShipment!"
       end
 
-      processor.process(args)
+      processor.update(args)
     end
 
     def self.feed_parameters
