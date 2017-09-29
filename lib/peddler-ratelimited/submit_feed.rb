@@ -12,11 +12,14 @@ module PeddlerRateLimited
 
     @queue = :amazon_api_submit_feed_queue
 
-    def self.perform(data, feed_type, processor=nil)
+    #TODO change this args to hash
+    def self.perform(data, feed_type, processor=nil, processor_method=nil, additional_data=nil)
       RateLimitter.new(self, {
         feed_type: feed_type,
         data: data,
-        processor: processor
+        processor: processor,
+        processor_method: processor_method,
+        additional_data: additional_data
       }).submit
     end
 
@@ -28,6 +31,7 @@ module PeddlerRateLimited
       result = AmazonMWS.instance.products.submit_feed(data, feed_type)
       parsed_result = result.parse["FeedSubmissionInfo"]
       feed_submission_id = parsed_result["FeedSubmissionId"]
+      feed_processing_status = parsed_result["FeedProcessingStatus"]
 
       unless feed_submission_id.present?
         error = SubmitFeedError.new("feed_submission_id is missing.")
@@ -37,7 +41,10 @@ module PeddlerRateLimited
         log_data(feed_submission_id: feed_submission_id,
                  feed_type: feed_type,
                  feed: data,
-                 processor: processor)
+                 processor: processor,
+                 processor_method: processor_method,
+                 feed_processing_statuse: feed_processing_status,
+                 additional_data: additional_data)
 
       end
 
@@ -46,7 +53,10 @@ module PeddlerRateLimited
         GetFeedSubmissionResult,
         {
           feed_submission_id: feed_submission_id,
-          email_template: 'amazon/get_feed_submission_result'
+          email_template: 'amazon/get_feed_submission_result',
+          processor: processor,
+          processor_method: processor_method,
+          additional_data: additional_data
         }
       )
     end

@@ -72,7 +72,7 @@ module PeddlerRateLimited
         if processor.is_a?(String)
           processor = args[:processor].safe_constantize.try(:new)
         end
-        processor.process(args)
+        process(args)
       else
         AMWSFeedLog.create(feed_submission_id: args[:feed_submission_id],
                            feed_type: args[:feed_type],
