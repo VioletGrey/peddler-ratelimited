@@ -27,6 +27,8 @@ module PeddlerRateLimited
       feed_type = args[:feed_type]
       data = args[:data]
       processor = args[:processor]
+      processor_method = args[:processor_method]
+      additional_data = args[:additional_data]
 
       result = AmazonMWS.instance.products.submit_feed(data, feed_type)
       parsed_result = result.parse["FeedSubmissionInfo"]
@@ -47,6 +49,7 @@ module PeddlerRateLimited
                  additional_data: additional_data)
 
       end
+
 
       Resque.enqueue_in(
         5.minutes,

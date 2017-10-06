@@ -64,6 +64,8 @@ module PeddlerRateLimited
       process_feeds_list(args, result.parse)
     rescue Exception => e
       log_error(get_class_name.underscore, result, e, args)
+      #FIXME bubble up the error to calling calls for possible retryies
+      raise "Error"
     end
 
     def self.log_data(args)
