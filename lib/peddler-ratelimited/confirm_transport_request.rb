@@ -16,7 +16,6 @@ module PeddlerRateLimited
         confirm_transport_request(args[:shipment_id])
 
     rescue Exception
-      byebug
       #try to recover if you're stuck in 'confirmed'
       #AMWS will return an error if trying to confirm already 'confirmed'
       Resque.enqueue_in(10.minutes, 
