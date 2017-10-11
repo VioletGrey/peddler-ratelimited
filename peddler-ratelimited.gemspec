@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name        = 'peddler-ratelimited'
-  gem.version     = '1.0.8'
+  gem.version     = '1.0.9'
   gem.date        = '2017-08-10'
   gem.summary     = "RateLimited Peddler!"
   gem.description = "Rate limitting Peddler"
