@@ -12,12 +12,16 @@ module PeddlerRateLimited
 
     def self.perform(args)
       args.symbolize_keys!
-      rateLimitter = RateLimitter.new(self, {
+      RateLimitter.new(self, {
         feed_submission_id: args[:feed_submission_id],
-        email_template: args[:email_template]
+        email_template: args[:email_template],
+        processor: args[:processor],
+        processor_method: args[:processor_method],
+        additional_data: args[:additional_data]
       }).submit
     end
 
+    #TODO clean up
     def self.act(args)
       feed_submission_id = args[:feed_submission_id]
       email_template = args[:email_template]
@@ -25,13 +29,18 @@ module PeddlerRateLimited
       result = AmazonMWS.instance.products.
         get_feed_submission_result(feed_submission_id)
       parsed_report = result.parse["ProcessingReport"]
-      if (report_code = parsed_report["StatusCode"]) == 'Complete' &&
-          email_template.present?
-        message = ApplicationController.render(
-          :template => email_template,
-          :layout => nil,
-          :assigns => { parsed_report: parsed_report }
-        )
+      if (report_code = parsed_report["StatusCode"]) == 'Complete'
+        if email_template.present?
+          message = ApplicationController.render(
+            :template => email_template,
+            :layout => nil,
+            :assigns => { parsed_report: parsed_report }
+          )
+        end
+        if args[:processor].present?
+          args[:feed_processing_status] = report_code
+          process(args)
+        end
       else
         log_error('get_feed_submission_result', parsed_report, nil, args)
 

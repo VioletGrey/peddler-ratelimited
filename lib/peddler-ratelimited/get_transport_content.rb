@@ -31,10 +31,10 @@ module PeddlerRateLimited
 
     #TODO clean up
     def self.process_feeds_list(args, result)
-      if (status = result["TransportContent"]).present?
+      if (content = result["TransportContent"]).present?
         begin
           process(shipment_id: args[:shipment_id],
-                  transport_status: status["TransportResult"]["TransportStatus"],
+                  content: content,
                   processor: args[:processor],
                   processor_method: args[:processor_method])
         rescue Exception => e

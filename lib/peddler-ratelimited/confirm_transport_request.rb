@@ -14,6 +14,14 @@ module PeddlerRateLimited
       AmazonMWS.instance.
         inbound_fulfillment.
         confirm_transport_request(args[:shipment_id])
+
+    rescue Exception
+      #try to recover if you're stuck in 'confirmed'
+      #AMWS will return an error if trying to confirm already 'confirmed'
+      Resque.enqueue_in(10.minutes, 
+                        PeddlerRateLimited::GetTransportContent,
+                        {shipment_id: 'FBA57YPGNT', processor: 'Amazon::InboundFulfillmentPlansProcessor',
+                         processor_method: 'update_transport_status'})
     end
 
     #TODO clean up
