@@ -24,6 +24,8 @@ module PeddlerRateLimited
           args: args
         }
       })
+      args[:error] = error
+      process(args)
       Rails.logger.error(amazon_details)
     end
 

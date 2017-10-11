@@ -20,7 +20,7 @@ module PeddlerRateLimited
       #AMWS will return an error if trying to confirm already 'confirmed'
       Resque.enqueue_in(10.minutes, 
                         PeddlerRateLimited::GetTransportContent,
-                        {shipment_id: 'FBA57YPGNT', processor: 'Amazon::InboundFulfillmentPlansProcessor',
+                        {shipment_id: args[:shipment_id], processor: 'Amazon::InboundFulfillmentPlansProcessor',
                          processor_method: 'update_transport_status'})
     end
 

@@ -11,7 +11,6 @@ module PeddlerRateLimited
     @queue = :amazon_api_get_pallet_labels
 
     def self.call_feed(args)
-      binding.pry
       AmazonMWS.instance.
         inbound_fulfillment.
         get_pallet_labels(args[:shipment_id],
