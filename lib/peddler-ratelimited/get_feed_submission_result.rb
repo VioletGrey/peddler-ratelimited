@@ -37,6 +37,9 @@ module PeddlerRateLimited
             :assigns => { parsed_report: parsed_report }
           )
         end
+
+        error = parsed_report['ProcessingSummary']['MessagesWithError']
+        args['error'] = error if error != '0' 
         if args[:processor].present?
           args[:feed_processing_status] = report_code
           process(args)
