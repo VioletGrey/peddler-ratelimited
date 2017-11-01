@@ -7,7 +7,7 @@ class Ratelimit
     end
 
     def initiate(bucket_name, bucket_expiry)
-      if instances[bucket_name].blank?
+      if instances[bucket_name].nil?
         instances[bucket_name] = self.new(bucket_name,
                                           {bucket_span: bucket_expiry,
                                            bucket_expiry: bucket_expiry,

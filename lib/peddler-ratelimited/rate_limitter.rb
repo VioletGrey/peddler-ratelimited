@@ -21,7 +21,7 @@ module PeddlerRateLimited
       @ratelimit = Ratelimit.initiate(@bucket_name, @bucket_expiry)
 
       @threshold = (@burst_rate*0.8).to_i
-      @count = 0
+      @count = @ratelimit.count(@subject, @threshold) || 0
       @hr_max_exceeded = false
     end
 

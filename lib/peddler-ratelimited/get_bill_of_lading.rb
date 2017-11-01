@@ -11,7 +11,6 @@ module PeddlerRateLimited
     @queue = :amazon_api_get_bill_of_lading
 
     def self.call_feed(args)
-      binding.pry
       AmazonMWS.instance.
         inbound_fulfillment.
         get_bill_of_lading(args[:shipment_id])

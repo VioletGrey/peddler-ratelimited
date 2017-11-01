@@ -10,11 +10,6 @@ module PeddlerRateLimited
 
     @queue = :amazon_api_create_inbound_shipment
 
-    def self.perform(args = {})
-      args.deep_symbolize_keys!
-      RateLimitter.new(self, args).submit
-    end
-
     def self.act(args)
       result = call_feed(args)
 
