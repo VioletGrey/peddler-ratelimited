@@ -11,24 +11,12 @@ module PeddlerRateLimited
 
     @queue = :amazon_api_get_feed_submission_list_queue
 
-    def self.act(args)
-      begin
-        result = call_feed(args)
-
-        process_feeds_list(result.parse.with_indifferent_access)
-      rescue Exception => e
-        pp '0'*100
-        pp e
-        log_error(get_class_name.underscore, result, e, args)
-      end
-    end
-
     def self.call_feed(args)
       AmazonMWS.instance.products.
         get_feed_submission_list(args)
     end
 
-    def self.process_feeds_list(result)
+    def self.process_feeds_list(args, result)
       queue_next_batch(result) if result["HasNext"] == "true"
       update_database_list(result)
     end
@@ -37,7 +25,7 @@ module PeddlerRateLimited
       Resque.enqueue_in(
         GetFeedSubmissionListByNextToken::RESTORE_RATE.seconds,
         GetFeedSubmissionListByNextToken,
-        result["NextToken"]
+        {next_token: result["NextToken"]}
       )
     end
 
@@ -48,7 +36,6 @@ module PeddlerRateLimited
             update_record(info)
           end
         else
-          pp data
           update_record(data)
         end
       end
