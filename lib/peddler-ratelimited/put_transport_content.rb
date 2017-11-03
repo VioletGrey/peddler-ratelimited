@@ -10,19 +10,6 @@ module PeddlerRateLimited
 
     @queue = :amazon_api_put_transport_content
 
-    def self.perform(args = {})
-      args.deep_symbolize_keys!
-      RateLimitter.new(self, args).submit
-    end
-
-    def self.act(args)
-      result = call_feed(args)
-
-      process_feeds_list(args, result.parse)
-    rescue Exception => e
-      log_error('put_transport_content', result, e, args)
-    end
-
     def self.call_feed(args)
       AmazonMWS.instance.
         inbound_fulfillment.
@@ -44,16 +31,6 @@ module PeddlerRateLimited
           log_error(get_class_name.underscore, result, e)
         end
       end
-    end
-
-    def self.feed_parameters
-      super.merge(
-        bucket_expiry: MAX_EXPIRY_RATE,
-        burst_rate: BURST_RATE,
-        restore_rate: RESTORE_RATE,
-        max_hourly_rate: MAX_HOURLY_RATE,
-        subject: SUBJECT
-      )
     end
   end
 end
