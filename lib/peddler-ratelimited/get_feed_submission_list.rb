@@ -11,29 +11,16 @@ module PeddlerRateLimited
 
     @queue = :amazon_api_get_feed_submission_list_queue
 
-    def self.perform(args = {})
-      args.symbolize_keys!
-      PeddlerRateLimited::RateLimitter.new(self, args).submit
-    end
-
     def self.act(args)
       begin
         result = call_feed(args)
 
-        process_feeds_list(result)
+        process_feeds_list(result.parse.with_indifferent_access)
       rescue Exception => e
-        log_error('get_feed_submission_list', result, e, args)
+        pp '0'*100
+        pp e
+        log_error(get_class_name.underscore, result, e, args)
       end
-    end
-
-    def self.feed_parameters
-      super.merge(
-        bucket_expiry: MAX_EXPIRY_RATE,
-        burst_rate: BURST_RATE,
-        restore_rate: RESTORE_RATE,
-        max_hourly_rate: MAX_HOURLY_RATE,
-        subject: SUBJECT
-      )
     end
 
     def self.call_feed(args)
@@ -42,29 +29,33 @@ module PeddlerRateLimited
     end
 
     def self.process_feeds_list(result)
-      parsed = result.parse
-      if parsed["HasNext"] == "true"
-        Resque.enqueue_in(
-          GetFeedSubmissionListByNextToken::RESTORE_RATE.seconds,
-          GetFeedSubmissionListByNextToken,
-          parsed["NextToken"]
-        )
-      end
-      update_database_list(parsed)
+      queue_next_batch(result) if result["HasNext"] == "true"
+      update_database_list(result)
     end
 
-    def self.update_database_list(parsed)
-      if (data = parsed["FeedSubmissionInfo"]).present?
+    def self.queue_next_batch(result)
+      Resque.enqueue_in(
+        GetFeedSubmissionListByNextToken::RESTORE_RATE.seconds,
+        GetFeedSubmissionListByNextToken,
+        result["NextToken"]
+      )
+    end
+
+    def self.update_database_list(result)
+      if (data = result["FeedSubmissionInfo"]).present?
         if data.count > 1
           data.each do |info|
             update_record(info)
           end
         else
+          pp data
           update_record(data)
         end
       end
     end
 
+    #TODO
+    #this should be optional
     def self.update_record(data)
       feed = AMWSFeedStatusLog.find_or_initialize_by(feed_submission_id: info['FeedSubmissionId'])
       feed.feed_type = info['FeedType']
