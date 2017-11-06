@@ -11,7 +11,7 @@ module PeddlerRateLimited
     @retry_delay_multiplicand_max = 1.5
 
     def self.perform(args = {})
-      args = args.with_indifferent_access
+      args.deep_symbolize_keys!
       RateLimitter.new(self, args).submit
     end
 
