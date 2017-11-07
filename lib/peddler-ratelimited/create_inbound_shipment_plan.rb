@@ -10,11 +10,6 @@ module PeddlerRateLimited
 
     @queue = :amazon_api_create_inbound_shipment_plan
 
-    def self.perform(args = {})
-      args.deep_symbolize_keys!
-      RateLimitter.new(self, args).submit
-    end
-
     def self.act(args)
       result = call_feed(args)
 
@@ -31,7 +26,7 @@ module PeddlerRateLimited
     end
 
     def self.process_feeds_list(result, processor, ship_from_address)
-      parsed = result.parse
+      parsed = result.parse.with_indifferent_access
       if (plans = parsed["InboundShipmentPlans"]).present?
         begin
           process_plans(plans, processor, ship_from_address)

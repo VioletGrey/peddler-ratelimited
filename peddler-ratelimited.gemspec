@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name        = 'peddler-ratelimited'
-  gem.version     = '1.0.10'
+  gem.version     = '1.0.11'
   gem.date        = '2017-08-10'
   gem.summary     = "RateLimited Peddler!"
   gem.description = "Rate limitting Peddler"
@@ -18,6 +18,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'resque-scheduler', '~> 4.3'
   gem.add_dependency 'resque-retry', '~> 1.5'
   gem.add_dependency 'simple_spark', '~> 1.0'
+  gem.add_dependency 'honeybadger'
+  gem.add_dependency "activesupport"
 
   gem.required_ruby_version = '>= 2.0'
 

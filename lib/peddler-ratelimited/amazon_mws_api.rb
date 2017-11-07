@@ -1,4 +1,5 @@
 require 'peddler-ratelimited/amazon_mws'
+require "active_support/core_ext/hash/indifferent_access"
 
 module PeddlerRateLimited
   class AmazonMWSApi
@@ -39,6 +40,7 @@ module PeddlerRateLimited
       }  
     end
 
+    #TODO email, name, subject should not be hard coded
     def self.email(args)
       @simple_spark ||= SimpleSpark::Client.new
       @simple_spark.transmissions.create({
@@ -63,7 +65,7 @@ module PeddlerRateLimited
     def self.act(args)
       result = call_feed(args)
 
-      process_feeds_list(args, result.parse)
+      process_feeds_list(args, result.parse.with_indifferent_access)
     rescue Exception => e
       log_error(get_class_name.underscore, result, e, args)
       #FIXME bubble up the error to calling calls for possible retryies
